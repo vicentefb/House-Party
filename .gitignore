@@ -11,3 +11,6 @@ venv/
 
 .idea/
 uploaded_media
+
+.node
+node_modules/
