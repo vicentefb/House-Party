@@ -2,10 +2,6 @@ import React, { Component } from "react";
 import { render } from "react-dom";
 // Let's import the Homepage component
 import HomePage from "./HomePage";
-// Let's import the RoomJoinPage component
-import RoomJoinPage from "./RoomJoinPage";
-// Let's import the CreateRoomPage component
-import CreateRoomPage from "./CreateRoomPage";
 
 // First component to be render is called App
 export default class App extends Component{
@@ -27,8 +23,7 @@ export default class App extends Component{
         return (
             <div>
                 <HomePage />
-                <RoomJoinPage />
-                <CreateRoomPage />
+
             </div>
             );
     }
