@@ -22,7 +22,8 @@ def generate_unique_code():
 # Create the database
 class Room(models.Model):
     # code will hold a bunch of characters
-    code =  models.CharField(max_length=8, default="", unique=True)
+    code =  models.CharField(max_length=8, default=generate_unique_code, unique=True)
+    # To figure out who the host is or to be able to store the host we need to use a session key
     host = models.CharField(max_length=50, unique=True)
     guest_can_pause = models.BooleanField(null=False, default=False)
     votes_to_skip = models.IntegerField(null=False, default=1)
