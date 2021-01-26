@@ -16,7 +16,57 @@ export default class CreateRoomPage extends Component{
     constructor(props){
         // Call the constructor of component which is necessary
         super(props);
+        // To keep track what's in our form (such as buttons and text value) below we use states to send it to the back-end
+        // If these states are updated it forces the components to update
+        // So every time the radio button or text is updated we will update the state and show whatever the state is
+        // When you press teh Create Room button we'll look at the current state and send that info to the back-end
+        this.state = {
+            guestCanPause: true,
+            votesToSkip: this.defaultVotes,
+        };
+
+        // We are binding the method handleRoomButtonPressed to the class as well as the other methods
+        // This will enable us to use the keyword this
+        this.handleRoomButtonPressed = this.handleRoomButtonPressed.bind(this);
+        this.handleVotesChange = this.handleVotesChange.bind(this);
+        this.handleGuessCanPauseChange = this.handleGuessCanPauseChange.bind(this);
     }
+
+    // e is the object that called this function
+    handleVotesChange(e) {
+        // this.setState is used to update the states
+        // e.target.value corresponds to the text field we have and it'll take the value
+        this.setState({
+            votesToSkip: e.target.value,
+        });
+    }
+
+    // it is used as an onChange inside the tag TextField for example
+    handleGuessCanPauseChange(e) { 
+        this.setState({
+            guestCanPause: e.target.value === 'true' ?  true: false,
+        });
+    }
+
+    handleRoomButtonPressed() {
+        // console.log(this.state) this will print out to the console {guestCanPause: true, votesToSkip: "4"}
+        // the fields inside the body need to match those in the server
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                votes_to_skip: this.state.votesToSkip,
+                guest_can_pause: this.state.guestCanPause,
+            }),
+        };
+        // send a request to '/api/create-room' with the requestOptions payload
+        // 'then' means once we get a response we take it and convert it to json and then we do 
+        // something with the data which is basically the response.json() object
+        fetch('/api/create-room', requestOptions)
+        .then((response) => response.json())
+        .then((data) => console.log(data));
+    }
+
     render(){
         // Grid helps us aligning elements either horizontally or vertically
         // The container keyword is saying that we'll align everything in a column-like structure
@@ -35,18 +85,22 @@ export default class CreateRoomPage extends Component{
                             Guest Control of Playback State
                         </div>
                     </FormHelperText>
-                    <RadioGroup row defaultValue='true'>
+                    <RadioGroup 
+                        row 
+                        defaultValue='true'  
+                        onChange={this.handleGuessCanPauseChange}
+                    >
                         <FormControlLabel 
-                        value="true" 
-                        control={ <Radio color="primary"/>}
-                        label="Play/Pause"
-                        labelPlacement="bottom"
+                            value="true" 
+                            control={ <Radio color="primary"/>}
+                            label="Play/Pause"
+                            labelPlacement="bottom"
                         />
                         <FormControlLabel 
-                        value="false" 
-                        control={ <Radio color="secondary"/>}
-                        label="No Control"
-                        labelPlacement="bottom"
+                            value="false" 
+                            control={ <Radio color="secondary"/>}
+                            label="No Control"
+                            labelPlacement="bottom"
                         />
                     </RadioGroup>
                 </FormControl>
@@ -56,6 +110,7 @@ export default class CreateRoomPage extends Component{
                     <TextField 
                         required={true} 
                         type="number" 
+                        onChange={this.handleVotesChange}
                         defaultValue={this.defaultVotes} 
                         inputProps={{
                             min:1,
@@ -70,7 +125,7 @@ export default class CreateRoomPage extends Component{
                 </FormControl>
             </Grid>
             <Grid item xs={12} align="center">
-                <Button color="primary" variant="contained">
+                <Button color="primary" variant="contained" onClick={this.handleRoomButtonPressed}>
                     Create A Room
                 </Button>
             </Grid>
