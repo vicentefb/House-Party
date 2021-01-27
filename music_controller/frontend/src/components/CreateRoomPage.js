@@ -62,9 +62,11 @@ export default class CreateRoomPage extends Component{
         // send a request to '/api/create-room' with the requestOptions payload
         // 'then' means once we get a response we take it and convert it to json and then we do 
         // something with the data which is basically the response.json() object
+        // this line: .then((data) => this.props.history.push('/room/' + data.code));
+        // redirects the user when they click the button Create a Room to that url
         fetch('/api/create-room', requestOptions)
         .then((response) => response.json())
-        .then((data) => console.log(data));
+        .then((data) => this.props.history.push('/room/' + data.code));
     }
 
     render(){
