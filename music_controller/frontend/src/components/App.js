@@ -21,7 +21,7 @@ export default class App extends Component{
         // render the HomePage, RoomJoinPage and CreateRoomPage components
         // we need to use <div> tags as a wrapper otherwise we would get an error
         return (
-            <div>
+            <div className="center">
                 <HomePage />
 
             </div>
