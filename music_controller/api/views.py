@@ -45,6 +45,36 @@ class GetRoom(APIView):
         # In the situation we weren't given a code in the url
         return Response({'Bad Request': 'Code parameter not found in requests'}, status=status.HTTP_400_BAD_REQUEST)
 
+# View to join a new room
+# We receive a room code from React and check if it's valid
+class JoinRoom(APIView):
+    lookup_url_kwarg = 'code'
+    # POST request
+    def post(self, request, format=None):
+        # First check if the user has an active session like in class CreateRoom
+        if not self.request.session.exists(self.request.session.session_key):
+            # Creating a session
+            self.request.session.create()
+
+        # Get the code from the POST request
+        # This returns None if there's no code argument
+        code = request.data.get(self.lookup_url_kwarg)
+        # Let's check if we do have a code
+        if code != None:
+            room_result =  Room.objects.filter(code=code)
+            if len(room_result) > 0:
+                room = room_result[0]
+                # make a note in the back-end that this user is in this room
+                # it means that this user in this current session has this code
+                self.request.session['room_code'] = code
+                return Response({'message': 'Room Joined!'}, status=status.HTTP_200_OK)
+
+            return Response({'Bad Request': 'Invalid Room Code'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # if they don't send a room code
+        return Response({'Bad Request': 'Invalid post data, did not find a code key'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 # APIView let us overwrite methods
 class CreateRoomView(APIView):
     serializer_class = CreateRoomSerializer
@@ -70,10 +100,14 @@ class CreateRoomView(APIView):
                 room.guest_can_pause = guest_can_pause
                 room.votes_to_skip = votes_to_skip
                 room.save(update_fields=['guest_can_pause', 'votes_to_skip'])
+                # it means that this user in this current session has this code
+                self.request.session['room_code'] = room.code
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:
                 room = Room(host=host, guest_can_pause=guest_can_pause, votes_to_skip=votes_to_skip)
                 room.save()
+                # it means that this user in this current session has this code
+                self.request.session['room_code'] = room.code
                 # Return the exact room they just created
                 return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
             
