@@ -6,6 +6,7 @@ from .models import Room
 from rest_framework.views import APIView
 # To be able to send a custom response from our view 
 from rest_framework.response import Response
+from django.http import JsonResponse
 
 # Create your views here.
 # Create an api vew to see a list of all the different rooms
@@ -112,3 +113,16 @@ class CreateRoomView(APIView):
                 return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
             
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserInRoom(APIView):
+    # send a GET request to this endpoin to check if the user has an active session
+    def get(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            # Creating a session
+            self.request.session.create()
+        
+        data = {
+            'code': self.request.session.get('room_code')
+        }
+        # JsonResponse() takes a Python dictionary and serializes and sends that to the front-end
+        return JsonResponse(data, status=status.HTTP_200_OK)
