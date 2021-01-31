@@ -18,6 +18,7 @@ export default class HomePage extends Component{
         this.state = {
             roomCode: null,
         };
+        this.clearRoomCode = this.clearRoomCode.bind(this);
     }
 
     // entry point to know if the user already has an active session
@@ -60,10 +61,30 @@ export default class HomePage extends Component{
         );
     }
 
+    clearRoomCode(){
+        this.setState({
+            roomCode: null,
+        });
+    }
+
     // Switch works the same as in other coding languages 
     // We use it for routing purposes
     // Whenever we add a new page we need to add it to Django and React
     // The render insde the first Route tag means to call that render function when we are in that page
+    /*  props is given by the Route
+        the ... is called the spread operator this will take in all of the properties that were passed in
+        as the object and kind of spread them out
+        leaveRoomCallback is our own prop which is equal to this.clearRoomCode which is a method that we define
+        So we are passing a method to the Room component so that it can call that method and modify the parent component
+        This takes care of the case where we leave a room and the home page is aware of that as well
+        notice that we didn't add parentheses to the method meaning we are passing it not calling it
+            <Route 
+                path="/room/:roomCode" 
+                render={(props) => {
+                    return <Room {...props} leaveRoomCallback={this.clearRoomCode}
+                }}
+            />
+    */
     render(){
         return (
             <Router>
@@ -77,7 +98,12 @@ export default class HomePage extends Component{
                     />    
                     <Route path="/join" component={RoomJoinPage}/>
                     <Route path="/create" component={CreateRoomPage}/>
-                    <Route path="/room/:roomCode" component={Room}/>
+                    <Route 
+                        path="/room/:roomCode" 
+                        render={(props) => {
+                            return <Room {...props} leaveRoomCallback={this.clearRoomCode} />;
+                        }}
+                    />
                 </Switch>
             </Router>
             );

@@ -1,5 +1,7 @@
 // Handling the page once we create a room
 import React, { Component } from 'react';
+import { Grid, Button, Typography } from '@material-ui/core';
+import { Link } from "react-router-dom";
 
 export default class Room extends Component {
     constructor(props){
@@ -16,14 +18,24 @@ export default class Room extends Component {
         // This will update the state and re render 
         // After the call the values will be updated
         this.getRoomDetails();
+        this.leaveButtonPressed = this.leaveButtonPressed.bind(this);
     }
 
     getRoomDetails(){
         // Making a call to the backend when we render /room/:codeRoom
         // We are actually setting the values of votesToSkip, guestCanPause and isHost
         // based on the data from the backend which is is stored in the data variable
-        fetch('/api/get-room' + '?code=' + this.roomCode).then((response) => 
-            response.json())
+        // We need to make sure our response is ok, if our response is not ok we need to redirect the user to the homepage
+        fetch('/api/get-room' + '?code=' + this.roomCode)
+            .then((response) => {
+                if(!response.ok){
+                    // If we are in a room that doesn't exist
+                    // This will clear the state of roomcode in the homepage
+                    this.props.leaveRoomCallback();
+                    this.props.history.push('/');
+                }
+                return respone.json();
+            })
             .then((data) => {
             this.setState({
                 votesToSkip: data.votes_to_skip,
@@ -33,14 +45,47 @@ export default class Room extends Component {
         });
     }
 
+    leaveButtonPressed(){
+        // Call the endpoint that actually makes the button leave the room
+        const requestOptions = {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+        };
+        fetch('/api/leave-room', requestOptions).then((_response) => {
+            this.props.leaveRoomCallback();
+            this.props.history.push('/');
+        });
+    }
+
     render(){
         return (
-        <div>
-            <h3>{this.roomCode}</h3>
-            <p>Votes: {this.state.votesToSkip}</p>
-            <p>Guest Can Pause: {this.state.guestCanPause.toString()}</p>
-            <p>Host: {this.state.isHost.toString()}</p>
-        </div>
+            <Grid container spacing={1}>
+                <Grid item xs={12} align="center">
+                    <Typography variant="h4" component="h4">
+                        Code: {this.roomCode}
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} align="center">
+                    <Typography variant="h6" component="h6">
+                        Votes: {this.state.votesToSkip}
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} align="center">
+                    <Typography variant="h6" component="h6">
+                        Guest Can Pause: {this.state.guestCanPause.toString()}
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} align="center">
+                    <Typography variant="h6" component="h6">
+                        Host: {this.state.isHost.toString()}
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} align="center">
+                    <Button color="secondary" variant="contained" onClick={this.leaveButtonPressed}>
+                        Leave Room
+                    </Button>
+                </Grid>
+            </Grid>
         );
     }
 }
