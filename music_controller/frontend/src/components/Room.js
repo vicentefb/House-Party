@@ -34,7 +34,7 @@ export default class Room extends Component {
                     this.props.leaveRoomCallback();
                     this.props.history.push('/');
                 }
-                return respone.json();
+                return response.json();
             })
             .then((data) => {
             this.setState({
