@@ -19,3 +19,10 @@ class CreateRoomSerializer(serializers.ModelSerializer):
         # To make sure that when we pass data to the serializer, we have the following fields
         # and that those correpsond to the ones in the Room line 17
         fields = ('guest_can_pause', 'votes_to_skip')
+
+class UpdateRoomSerializer(serializers.ModelSerializer):
+    # We redefined the code field in the serializer so i'm not messing with the code from the model
+    code = serializers.CharField(validators=[])
+    class Meta:
+        model = Room
+        fields = ('guest_can_pause', 'votes_to_skip', 'code')
