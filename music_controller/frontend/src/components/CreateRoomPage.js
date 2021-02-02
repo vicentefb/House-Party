@@ -11,7 +11,15 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 export default class CreateRoomPage extends Component{
-    defaultVotes = 2;
+    // If we don't pass any of these props anywhere, by default they will have those values
+    // With this we can change this.state inside our constructor so everything has this.props...
+    static defaultProps = {
+        votesToSkip: 2, 
+        guestCanPause: true,
+        update: false,
+        roomCode: null, 
+        updateCallBack: () => { },
+    };
 
     constructor(props){
         // Call the constructor of component which is necessary
@@ -19,10 +27,12 @@ export default class CreateRoomPage extends Component{
         // To keep track what's in our form (such as buttons and text value) below we use states to send it to the back-end
         // If these states are updated it forces the components to update
         // So every time the radio button or text is updated we will update the state and show whatever the state is
-        // When you press teh Create Room button we'll look at the current state and send that info to the back-end
+        // When you press the Create Room button we'll look at the current state and send that info to the back-end
+        // they will take the value of whatever is passed through in props
+        // This way we are not using hardcoded values
         this.state = {
-            guestCanPause: true,
-            votesToSkip: this.defaultVotes,
+            guestCanPause: this.props.guestCanPause,
+            votesToSkip: this.props.votesToSkip,
         };
 
         // We are binding the method handleRoomButtonPressed to the class as well as the other methods
@@ -70,6 +80,8 @@ export default class CreateRoomPage extends Component{
     }
 
     render(){
+        const title = this.props.update ? "Update Room" : "Create a Room";
+
         // Grid helps us aligning elements either horizontally or vertically
         // The container keyword is saying that we'll align everything in a column-like structure
         // The spacing keyword means that 1 is 8px and so on
@@ -77,7 +89,7 @@ export default class CreateRoomPage extends Component{
         <Grid container spacing={1}>
             <Grid item xs={12} align="center">
                 <Typography component='h4' variant='h4'>
-                    Create A Room
+                    {title}
                 </Typography>
             </Grid>
             <Grid item xs={12} align="center">
@@ -113,7 +125,7 @@ export default class CreateRoomPage extends Component{
                         required={true} 
                         type="number" 
                         onChange={this.handleVotesChange}
-                        defaultValue={this.defaultVotes} 
+                        defaultValue={this.state.votesToSkip} 
                         inputProps={{
                             min:1,
                             style: {textAlign: "center"},
