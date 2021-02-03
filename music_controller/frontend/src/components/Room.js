@@ -17,15 +17,15 @@ export default class Room extends Component {
         // component from the React Router in HomePage.js
         // We can access the roomCode from the params (parameters) of the url
         this.roomCode = this.props.match.params.roomCode;
-        // This will update the state and re render 
-        // After the call the values will be updated
-        this.getRoomDetails();
         this.leaveButtonPressed = this.leaveButtonPressed.bind(this);
         this.updateShowSettings = this.updateShowSettings.bind(this);
         this.renderSettingsButton = this.renderSettingsButton.bind(this);
         this.renderSettings = this.renderSettings.bind(this);
+        this.getRoomDetails = this.getRoomDetails.bind(this);
+        this.getRoomDetails();
     }
 
+    // This updates the values to whatever they are equal to at the moment
     getRoomDetails(){
         // Making a call to the backend when we render /room/:codeRoom
         // We are actually setting the values of votesToSkip, guestCanPause and isHost
@@ -79,7 +79,7 @@ export default class Room extends Component {
                     votesToSkip={this.state.votesToSkip} 
                     guestCanPause={this.state.guestCanPause} 
                     roomCode={this.roomCode}
-                    updateCallback={() => {}}
+                    updateCallback={this.getRoomDetails}
                     />
             </Grid>
             <Grid item xs={12} align="center">

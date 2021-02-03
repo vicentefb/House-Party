@@ -9,6 +9,8 @@ import { Link } from "react-router-dom";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { Collapse } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 
 export default class CreateRoomPage extends Component{
     // If we don't pass any of these props anywhere, by default they will have those values
@@ -33,6 +35,8 @@ export default class CreateRoomPage extends Component{
         this.state = {
             guestCanPause: this.props.guestCanPause,
             votesToSkip: this.props.votesToSkip,
+            errorMsg: "",
+            successMsg: "",
         };
 
         // We are binding the method handleRoomButtonPressed to the class as well as the other methods
@@ -40,6 +44,7 @@ export default class CreateRoomPage extends Component{
         this.handleRoomButtonPressed = this.handleRoomButtonPressed.bind(this);
         this.handleVotesChange = this.handleVotesChange.bind(this);
         this.handleGuessCanPauseChange = this.handleGuessCanPauseChange.bind(this);
+        this.handleUpdateButtonPressed = this.handleUpdateButtonPressed.bind(this);
     }
 
     // e is the object that called this function
@@ -75,8 +80,69 @@ export default class CreateRoomPage extends Component{
         // this line: .then((data) => this.props.history.push('/room/' + data.code));
         // redirects the user when they click the button Create a Room to that url
         fetch('/api/create-room', requestOptions)
-        .then((response) => response.json())
-        .then((data) => this.props.history.push('/room/' + data.code));
+            .then((response) => response.json())
+            .then((data) => this.props.history.push('/room/' + data.code));
+    }
+
+    // Update Room button
+    // PATCH will trigger the method patch() inside UpdateRoom class
+    handleUpdateButtonPressed(){
+        const requestOptions = {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                votes_to_skip: this.state.votesToSkip,
+                guest_can_pause: this.state.guestCanPause,
+                code: this.props.roomCode,
+            }),
+        };
+        fetch('/api/update-room', requestOptions)
+        .then((response) => {
+            if (response.ok){
+                this.setState({
+                    successMsg: "Room updated successfully!",
+                });
+            } else {
+                this.setState({
+                    errorMsg: "Error updating room...",
+                });
+            }
+            this.props.updateCallback();
+        });
+       
+        
+    }
+
+    // We are going to have 2 methods one that creates the buttons to Create a New Room
+    // and another method that creates the buttons to Update a Room
+    renderCreateButtons(){
+        return (
+            <Grid container spacing={1}>
+                <Grid item xs={12} align="center">
+                    <Button color="primary" variant="contained" onClick={this.handleRoomButtonPressed}>
+                        Create A Room
+                    </Button>
+                </Grid>
+                <Grid item xs={12} align="center">
+                    <Button color="secondary" variant="contained" to="/" component={Link}>
+                        Back
+                    </Button>
+                </Grid>
+            </Grid>
+        );
+    }
+
+    renderUpdateButtons(){
+        return (
+            <Grid item xs={12} align="center">
+                <Button 
+                    color="primary" 
+                    variant="contained" 
+                    onClick={this.handleUpdateButtonPressed}>
+                    Update Room
+                </Button>
+            </Grid>
+        );
     }
 
     render(){
@@ -87,6 +153,15 @@ export default class CreateRoomPage extends Component{
         // The spacing keyword means that 1 is 8px and so on
         return(
         <Grid container spacing={1}>
+            <Grid item xs={12} align="center">
+                <Collapse in={this.state.errorMsg != "" || this.state.successMsg != ""}>
+                    {this.state.successMsg != "" ? (
+                        <Alert severity="success" onClose={() => {this.setState({successMsg: ""});}}>{this.state.successMsg}</Alert>
+                    ) : (
+                        <Alert severity="error" onClose={() => {this.setState({errorMsg: ""});}}>{this.state.errorMsg}</Alert>
+                    )}
+                </Collapse>
+            </Grid>
             <Grid item xs={12} align="center">
                 <Typography component='h4' variant='h4'>
                     {title}
@@ -101,7 +176,7 @@ export default class CreateRoomPage extends Component{
                     </FormHelperText>
                     <RadioGroup 
                         row 
-                        defaultValue='true'  
+                        defaultValue={this.props.guestCanPause.toString()} 
                         onChange={this.handleGuessCanPauseChange}
                     >
                         <FormControlLabel 
@@ -138,16 +213,9 @@ export default class CreateRoomPage extends Component{
                     </FormHelperText>
                 </FormControl>
             </Grid>
-            <Grid item xs={12} align="center">
-                <Button color="primary" variant="contained" onClick={this.handleRoomButtonPressed}>
-                    Create A Room
-                </Button>
-            </Grid>
-            <Grid item xs={12} align="center">
-                <Button color="secondary" variant="contained" to="/" component={Link}>
-                    Back
-                </Button>
-            </Grid>
+            {this.props.update 
+            ? this.renderUpdateButtons()
+            : this.renderCreateButtons()}
         </Grid>
         );
     }
