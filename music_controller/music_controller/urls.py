@@ -19,7 +19,8 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')), # Whatever the url is dispatch/send it over to api.urls
-    path('', include('frontend.urls')) # Whenever we type a url that's not api or admin we send it to frontend.urls
+    path('', include('frontend.urls')), # Whenever we type a url that's not api or admin we send it to frontend.urls
+    path('spotify/', include('spotify.urls'))
 ]
 
 
