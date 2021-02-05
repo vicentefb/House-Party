@@ -1,14 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .credentials import REDIRECT_URI, CLIENT_SECRET, CLIENT_ID
 from  rest_framework.views import APIView
 from requests import Request, post
 from rest_framework import status
 from rest_framework.response import Response
+from .util import update_or_create_user_tokens
 
 # 1. Request authorization to access data
 # Authenticate application to request access with Spotify
 # This endpoint will return us a url that we can go to authenticate our Spotify application
 # Note: after we send the request to the URL we need a callback to take in the code 
+# This endpoint will be called from the frontend
 class AuthURL(APIView):
     def get(self, request, format=None):
         # scopes refers to the information we want to access to
@@ -47,3 +49,10 @@ def spotify_callback(request, format=None):
     error = response.get('error')
 
     # As soon as I get access to the information from above I want to store it in database
+    # Make sure we have a session key
+    if not request.session.exists(request.session.session_key):
+        request.session.create()
+
+    update_or_create_user_tokens(request.session.session_key, access_token, token_type, expires_in, refresh_token)
+    # we want to redirect back to the homepage
+    return redirect('frontend:')
