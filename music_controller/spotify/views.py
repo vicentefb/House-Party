@@ -5,6 +5,7 @@ from requests import Request, post
 from rest_framework import status
 from rest_framework.response import Response
 from .util import update_or_create_user_tokens, is_spotify_authenticated
+from api.models import Room
 
 # 1. Request authorization to access data
 # Authenticate application to request access with Spotify
@@ -24,7 +25,7 @@ class AuthURL(APIView):
             'client_id': CLIENT_ID
         }).prepare().url
 
-        return Reponse({'url':url}, status=status.HTTP_200_OK)
+        return Response({'url':url}, status=status.HTTP_200_OK)
 
 def spotify_callback(request, format=None):
     # We need code because it's how we are going to authenticate the user
