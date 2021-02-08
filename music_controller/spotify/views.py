@@ -77,11 +77,41 @@ class CurrentSong(APIView):
             room = room[0]
         else:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
-        # if we get the host we can get the token information
+        # if we get the room we can get the token information
         host = room.host
-        # we need to send a request to spotify and send iwth it our token
+        # we need to send a request to spotify and send it with our token
         endpoint = "player/currently-playing"
         response = execute_spotify_api_request(host, endpoint)
-        print(response)
+        # make sure we don't have an error
+        # if this is true it means we don't have any song information at the moment
+        if 'error' in response or 'item' not in response:
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        
+        # item stores a dictionary
+        item = response.get('item')
+        duration = item.get('duration_ms')
+        progress = response.get('progress_ms')
+        album_cover = item.get('album').get('images')[0].get('url')
+        is_playing = response.get('is_playing')
+        song_id = item.get('id')
 
-        return Response(response, status=status.HTTP_200_OK)
+        # handle if we have multiple artists for a song
+        artist_string = ""
+        for i, artist in enumerate(item.get('artist')):
+            # if it's not the first artist in the list
+            if i > 0:
+                artist_string += ", "
+            name = artist.get('name')
+            artist_string += name
+        # Custom object that has information about the song we want to send
+        song = {
+            'title': item.get('name'),
+            'artist': artist_string,
+            'duration': duration,
+            'time': progress,
+            'image_url': album_cover,
+            'is_playing': is_playing,
+            'votes': 0,
+            'id': song_id
+        }
+        return Response(song, status=status.HTTP_200_OK)
