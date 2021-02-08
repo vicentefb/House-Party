@@ -4,7 +4,7 @@ from  rest_framework.views import APIView
 from requests import Request, post
 from rest_framework import status
 from rest_framework.response import Response
-from .util import update_or_create_user_tokens, is_spotify_authenticated
+from .util import *
 from api.models import Room
 
 # 1. Request authorization to access data
@@ -64,3 +64,24 @@ class IsAuthenticated(APIView):
     def get(self, request, format=None):
         is_authenticated = is_spotify_authenticated(self.request.session.session_key)
         return Response({'status': is_authenticated}, status=status.HTTP_200_OK)
+
+
+# View to return information about the current song
+class CurrentSong(APIView):
+    def get(self, request, format=None):
+        room_code = self.request.session.get('room_code')
+        # get access to this room object because whoever is requesting information about the current song
+        # may not be the host or the person authenticated with Spotify
+        room = Room.objects.filter(code=room_code)
+        if room.exists():
+            room = room[0]
+        else:
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
+        # if we get the host we can get the token information
+        host = room.host
+        # we need to send a request to spotify and send iwth it our token
+        endpoint = "player/currently-playing"
+        response = execute_spotify_api_request(host, endpoint)
+        print(response)
+
+        return Response(response, status=status.HTTP_200_OK)
