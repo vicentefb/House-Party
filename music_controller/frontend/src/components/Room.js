@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Grid, Button, Typography } from '@material-ui/core';
 import { Link } from "react-router-dom";
-import CreateRoomPage from "./CreateRoomPage";
+import CreateRoomPage from './CreateRoomPage';
 
 export default class Room extends Component {
     constructor(props){
@@ -13,6 +13,7 @@ export default class Room extends Component {
             isHost: false,
             showSettings: false,
             spotifyAuthenticated: false,
+            song: {},
         };
         // match is the prop that sorts all the information on how we got to this 
         // component from the React Router in HomePage.js
@@ -25,7 +26,17 @@ export default class Room extends Component {
         this.getRoomDetails = this.getRoomDetails.bind(this);
         this.authenticateSpotify = this.authenticateSpotify.bind(this);
         // As soon as we get into a room, if we are the host we need to authenticate the spotify
+        this.getCurrentSong = this.getCurrentSong.bind(this);
         this.getRoomDetails();
+    }
+
+    // We are going to call each second an point to get the state of the song
+    componentDidMount(){
+        this.interval = setInterval(this.getCurrentSong, 1000);
+    }
+
+    componentWillUnmount(){
+        clearInterval(this.interval);
     }
 
     // This updates the values to whatever they are equal to at the moment
@@ -58,7 +69,7 @@ export default class Room extends Component {
 
     authenticateSpotify(){
         // data.url is the url returned from the backedn
-        fetch('/spotify/is-authenticated')
+        fetch("/spotify/is-authenticated")
             .then((response) => response.json())
             .then((data) => {
                 this.setState({spotifyAuthenticated: data.status });
@@ -73,6 +84,23 @@ export default class Room extends Component {
             }
         });
     }
+
+    // After we authenticate the user we call this function
+    getCurrentSong() {
+        console.log("HELLO")
+        fetch("/spotify/current-song")
+          .then((response) => {
+            if (!response.ok) {
+              return {}
+            } else {
+              return response.json()
+            }
+          })
+          .then((data) => {
+            this.setState({ song: data });
+            console.log(data);
+          });
+      }
 
     leaveButtonPressed(){
         // Call the endpoint that actually makes the button leave the room
@@ -142,21 +170,7 @@ export default class Room extends Component {
                         Code: {this.roomCode}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} align="center">
-                    <Typography variant="h6" component="h6">
-                        Votes: {this.state.votesToSkip}
-                    </Typography>
-                </Grid>
-                <Grid item xs={12} align="center">
-                    <Typography variant="h6" component="h6">
-                        Guest Can Pause: {this.state.guestCanPause.toString()}
-                    </Typography>
-                </Grid>
-                <Grid item xs={12} align="center">
-                    <Typography variant="h6" component="h6">
-                        Host: {this.state.isHost.toString()}
-                    </Typography>
-                </Grid>
+                <Grid {...this.state.song} />
                 {this.state.isHost ? this.renderSettingsButton():null}
                 <Grid item xs={12} align="center">
                     <Button color="secondary" variant="contained" onClick={this.leaveButtonPressed}>

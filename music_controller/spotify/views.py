@@ -97,7 +97,7 @@ class CurrentSong(APIView):
 
         # handle if we have multiple artists for a song
         artist_string = ""
-        for i, artist in enumerate(item.get('artist')):
+        for i, artist in enumerate(item.get('artists')):
             # if it's not the first artist in the list
             if i > 0:
                 artist_string += ", "
