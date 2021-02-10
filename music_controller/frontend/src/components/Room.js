@@ -88,7 +88,6 @@ export default class Room extends Component {
 
     // After we authenticate the user we call this function
     getCurrentSong() {
-        console.log("HELLO")
         fetch("/spotify/current-song")
           .then((response) => {
             if (!response.ok) {
