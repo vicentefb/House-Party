@@ -24,6 +24,14 @@ export default function Info(props) {
     function createInfo() {
         return "Create page";
     }
+    // Every time the component Info is updated, useEffect() is ran 
+    // useEffect() does the same as componentDidMount, componentWillUnmount and so on..
+    useEffect(() => {
+        console.log("ran");
+        // When the component unmounts this function inside useEffect() will be called
+        // It's like implementing componentWillUnmount
+        return () => console.log("cleanup");
+    });
 
     // This alone is a functional component
     return (
