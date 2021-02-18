@@ -16,3 +16,16 @@ cd House-Party\music_controller\frontend
 npm install
 npm run dev
 ```
+
+### Tech
+
+Following the MVC (Model, View, Controller) pattern, Mybrary uses some open source projects to work properly:
+
+* [Django] - High-level Python Web framework
+* [React.js] - JavaScript library for building user interfaces
+* [Spotify] - Spotify API
+
+
+   [Django]: <https://www.djangoproject.com/>
+   [React.js]: <https://reactjs.org/>
+   [Spotify]: <https://developer.spotify.com/>
