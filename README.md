@@ -29,3 +29,7 @@ Following the MVC (Model, View, Controller) pattern, Mybrary uses some open sour
    [Django]: <https://www.djangoproject.com/>
    [React.js]: <https://reactjs.org/>
    [Spotify]: <https://developer.spotify.com/>
+
+### Showcase
+
+![](images/Home.PNG)
