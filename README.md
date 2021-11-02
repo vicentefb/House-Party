@@ -2,6 +2,8 @@
 
 House Party is a full stack Web Application developed using Django and React.js that showcases a Music Player using Spotify API.
 
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/vE4lzrD1LM0/0.jpg)](http://www.youtube.com/watch?v=vE4lzrD1LM0 "House Party")
+
 ## Setup
 
 ```sh
